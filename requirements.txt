@@ -4,3 +4,4 @@ openpyxl==3.1.2
 cryptography==42.0.5
 streamlit-authenticator==0.2.3
 rapidfuzz
+pyyaml
