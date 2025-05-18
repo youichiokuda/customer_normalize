@@ -16,12 +16,8 @@ logging.basicConfig(filename='access.log', level=logging.INFO, format='%(asctime
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-if "credentials" in st.secrets:
-    credentials = dict(st.secrets["credentials"])  # Cloud
-else:
-    with open("config.yaml", "r") as f:
-        yaml_config = yaml.safe_load(f)
-    credentials = yaml_config["credentials"]       # ローカル
+credentials = dict(st.secrets["credentials"])  # Cloud
+
 
 authenticator = stauth.Authenticate(
     credentials,
