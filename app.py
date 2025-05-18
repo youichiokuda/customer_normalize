@@ -40,7 +40,6 @@ if authentication_status:
     authenticator.logout('ログアウト', 'sidebar')
     st.title("医療機関向け 顧客履歴管理システム（表記揺れ対応＋セキュア版）")
 
-    # --- 正規化辞書の読み込み ---
     @st.cache_data
     def load_normalization_dict(file_path):
         if file_path.endswith(".csv"):
@@ -61,21 +60,24 @@ if authentication_status:
         st.error(f"正規化辞書ファイル {dict_file} が見つかりません。")
         normalization_dict = {}
 
-    # 標準名一覧を作成（fuzzy matching 用）
     standard_names = list(set(normalization_dict.values()))
 
-    # --- ファイルアップロード ---
     st.header("1. 顧客データのアップロード")
-    uploaded_file = st.file_uploader("Excelファイルをアップロード", type=["xlsx", "xls"])
+    uploaded_files = st.file_uploader("Excelファイルをアップロード（複数選択可）", type=["xlsx", "xls"], accept_multiple_files=True)
 
-    if uploaded_file:
-        encrypted_data = cipher.encrypt(uploaded_file.read())
-        decrypted_data = cipher.decrypt(encrypted_data)
-        df = pd.read_excel(io.BytesIO(decrypted_data))
+    if uploaded_files:
+        df_list = []
+        for uploaded_file in uploaded_files:
+            encrypted_data = cipher.encrypt(uploaded_file.read())
+            decrypted_data = cipher.decrypt(encrypted_data)
+            df_temp = pd.read_excel(io.BytesIO(decrypted_data))
+            df_list.append(df_temp)
+            logging.info(f"User {username} uploaded: {uploaded_file.name}")
 
-        st.subheader("アップロード内容")
+        df = pd.concat(df_list, ignore_index=True)
+
+        st.subheader("アップロード内容（結合済）")
         st.write(df.head())
-        logging.info(f"User {username} uploaded a file.")
 
         if "顧客名" not in df.columns:
             st.error("顧客名という列が見つかりません。列名を確認してください。")
@@ -97,7 +99,6 @@ if authentication_status:
 
             df["正規化顧客名"] = df["顧客名"].apply(normalize_name)
 
-            # --- 未正規化顧客名の表示 ---
             unmatched = df[df["顧客名"] == df["正規化顧客名"]]["顧客名"].unique().tolist()
             if unmatched:
                 st.warning(f"正規化辞書に未登録の顧客名があります（{len(unmatched)} 件）:")
