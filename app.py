@@ -16,9 +16,14 @@ logging.basicConfig(filename='access.log', level=logging.INFO, format='%(asctime
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-# --- 認証情報をYAMLから読み込む ---
-with open('config.yaml') as file:
-    config = yaml.safe_load(file)
+if "credentials" in st.secrets:
+    config = st.secrets
+else:
+    import yaml
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+
 
 authenticator = stauth.Authenticate(
     config['credentials'],
