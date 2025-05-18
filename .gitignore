@@ -1,6 +1,8 @@
 # 機密ファイル
 config.yaml
 secrets.toml
+.streamlit/secrets.toml
+
 
 # 一時ファイル
 __pycache__/
