@@ -8,17 +8,22 @@ import datetime
 import os
 from rapidfuzz import process
 import yaml
+import sys
 
-# ログ設定
+# --- ログ設定 ---
 logging.basicConfig(filename='access.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+print("✅ app.py 実行開始", file=sys.stderr)
+logging.info("✅ app.py 実行開始")
 
-# 暗号キー（実運用では環境変数から取得推奨）
+# --- 暗号キー（実運用では環境変数などで取得を推奨） ---
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-credentials = dict(st.secrets["credentials"])  # Cloud
+# --- 認証情報の読み込み ---
+credentials = dict(st.secrets["credentials"])
+logging.info("✅ 認証情報の読み込み完了")
 
-
+# --- 認証 ---
 authenticator = stauth.Authenticate(
     credentials,
     "customer_app",
@@ -32,6 +37,7 @@ if authentication_status:
     authenticator.logout('ログアウト', 'sidebar')
     st.title("医療機関向け 顧客履歴管理システム（表記揺れ対応＋セキュア版）")
     st.sidebar.success(f"ようこそ、{name} さん（ユーザーID: {username}）")
+    logging.info(f"✅ ログイン成功: {username}")
 
     @st.cache_data
     def load_normalization_dict(file_path):
@@ -46,8 +52,10 @@ if authentication_status:
 
     dict_file = "normalization.csv"
     if os.path.exists(dict_file):
+        logging.info("✅ normalization.csv を発見しました")
         normalization_dict = load_normalization_dict(dict_file)
     else:
+        logging.error("❌ normalization.csv が見つかりません")
         st.error(f"正規化辞書ファイル {dict_file} が見つかりません。")
         normalization_dict = {}
 
@@ -145,9 +153,7 @@ if authentication_status:
 
 elif authentication_status is False:
     st.error("ログイン情報が間違っています。")
+    logging.warning(f"ログイン失敗: ユーザー名={username}")
 elif authentication_status is None:
     st.warning("ユーザー名とパスワードを入力してください。")
-elif authentication_status is False:
-    st.error("ログイン情報が間違っています。")
-    logging.warning(f"ログイン失敗: ユーザー名={username}")
-
+    logging.info("ログイン未入力")
