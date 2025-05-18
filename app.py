@@ -147,3 +147,7 @@ elif authentication_status is False:
     st.error("ログイン情報が間違っています。")
 elif authentication_status is None:
     st.warning("ユーザー名とパスワードを入力してください。")
+elif authentication_status is False:
+    st.error("ログイン情報が間違っています。")
+    logging.warning(f"ログイン失敗: ユーザー名={username}")
+
