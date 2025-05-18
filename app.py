@@ -23,10 +23,10 @@ else:
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 
-
+credentials = dict(st.secrets["credentials"])
 
 authenticator = stauth.Authenticate(
-    config['credentials'],
+    credentials,
     "customer_app",
     "abcdef",
     cookie_expiry_days=1
