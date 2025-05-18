@@ -77,7 +77,7 @@ streamlit run app.py
 
 ## 開発・メンテナンス
 
-開発者: [Your Name]  
+開発者: Yoichi Okuda  
 ライセンス: MIT
 
 バグ報告や機能要望は [Issues] へお願いします。
