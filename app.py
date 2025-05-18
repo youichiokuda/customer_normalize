@@ -17,13 +17,11 @@ key = Fernet.generate_key()
 cipher = Fernet(key)
 
 if "credentials" in st.secrets:
-    config = st.secrets
+    credentials = dict(st.secrets["credentials"])  # Cloud
 else:
-    import yaml
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-
-credentials = dict(st.secrets["credentials"])
+    with open("config.yaml", "r") as f:
+        yaml_config = yaml.safe_load(f)
+    credentials = yaml_config["credentials"]       # ローカル
 
 authenticator = stauth.Authenticate(
     credentials,
