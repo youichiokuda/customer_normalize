@@ -31,7 +31,7 @@ authenticator = stauth.Authenticate(
     cookie_expiry_days=1
 )
 
-# ★ 修正：form_name 'ログイン' を追加
+# ✅ 修正済み：form_name を指定
 name, authentication_status, username = authenticator.login('ログイン', location='main')
 
 if authentication_status:
