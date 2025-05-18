@@ -8,6 +8,7 @@
   - 顧客名の表記揺れに対応し、正規化された名称に統一
   - 類似度による自動マッチング（RapidFuzz を使用）
   - 正規化辞書（CSVまたはYAML）に基づく一致処理
+  - 正規化後の顧客名は **データの一番左列に表示**
 
 - **複数ファイル対応**
   - 複数のExcelファイルを一括アップロード
@@ -21,6 +22,7 @@
   - `streamlit-authenticator` によるログイン機能
   - アップロードファイルの暗号化/復号処理（`cryptography` モジュール使用）
   - アクセスログの記録
+  - 認証情報を `config.yaml` で外部管理（複数ユーザー対応）
 
 ---
 
@@ -53,6 +55,9 @@ streamlit run app.py
   京中病院,京都中央医療センター
   ```
 
+- `config.yaml`  
+  ユーザーのログイン情報（パスワードはハッシュ化済み）
+
 - Excelファイル（複数可）  
   以下の列が必要です：
   - `顧客名`
@@ -69,6 +74,7 @@ streamlit run app.py
 - `streamlit-authenticator`
 - `rapidfuzz`
 - `openpyxl`（Excel出力用）
+- `pyyaml`
 
 ---
 
@@ -81,5 +87,5 @@ streamlit run app.py
 
 ## 開発・メンテナンス
 
-開発者: Yoichi Okuda
+開発者: [Your Name]  
 ライセンス: MIT

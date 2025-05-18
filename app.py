@@ -7,6 +7,7 @@ from cryptography.fernet import Fernet
 import datetime
 import os
 from rapidfuzz import process
+import yaml
 
 # ログ設定
 logging.basicConfig(filename='access.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -15,20 +16,12 @@ logging.basicConfig(filename='access.log', level=logging.INFO, format='%(asctime
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-# --- ユーザー認証設定 ---
-hashed_passwords = stauth.Hasher(['password123']).generate()
-
-credentials = {
-    "usernames": {
-        "admin": {
-            "name": "Admin",
-            "password": hashed_passwords[0]
-        }
-    }
-}
+# --- 認証情報をYAMLから読み込む ---
+with open('config.yaml') as file:
+    config = yaml.safe_load(file)
 
 authenticator = stauth.Authenticate(
-    credentials,
+    config['credentials'],
     "customer_app",
     "abcdef",
     cookie_expiry_days=1
@@ -39,6 +32,7 @@ name, authentication_status, username = authenticator.login('ログイン', 'mai
 if authentication_status:
     authenticator.logout('ログアウト', 'sidebar')
     st.title("医療機関向け 顧客履歴管理システム（表記揺れ対応＋セキュア版）")
+    st.sidebar.success(f"ようこそ、{name} さん（ユーザーID: {username}）")
 
     @st.cache_data
     def load_normalization_dict(file_path):
@@ -46,10 +40,8 @@ if authentication_status:
             df_dict = pd.read_csv(file_path)
             return dict(zip(df_dict['variant'], df_dict['normalized']))
         elif file_path.endswith(".yaml") or file_path.endswith(".yml"):
-            import yaml
             with open(file_path, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f)
-            return data
+                return yaml.safe_load(f)
         else:
             return {}
 
@@ -105,9 +97,11 @@ if authentication_status:
                 st.write(unmatched)
 
             st.subheader("正規化結果")
-            st.dataframe(df[["顧客名", "正規化顧客名"]])
+            st.dataframe(df[["正規化顧客名"] + [col for col in df.columns if col != "正規化顧客名"]])
 
             output = io.BytesIO()
+            reordered_cols = ["正規化顧客名"] + [col for col in df.columns if col != "正規化顧客名"]
+            df = df[reordered_cols]
             df.to_excel(output, index=False, engine='openpyxl')
             output.seek(0)
 
